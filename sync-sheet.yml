@@ -1,0 +1,43 @@
+name: Sync production data from Google Sheet
+
+on:
+  schedule:
+    # Every day at 21:00 UTC (00:00 Kampala/EAT the next day). Adjust as needed.
+    - cron: "0 21 * * *"
+  workflow_dispatch: {}   # lets you click "Run workflow" in the Actions tab for an immediate sync
+
+permissions:
+  contents: write
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install dependencies
+        run: pip install --quiet gspread google-auth
+
+      - name: Run sync script
+        env:
+          GOOGLE_SERVICE_ACCOUNT_JSON: ${{ secrets.GOOGLE_SERVICE_ACCOUNT_JSON }}
+          SPREADSHEET_ID: "1S6jG9yiW-bcM5YBjKuKn51qT4au6acz3"
+        run: python scripts/sync_from_sheet.py
+
+      - name: Commit and push if changed
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          if git diff --quiet -- index.html; then
+            echo "No changes in index.html - nothing to commit."
+          else
+            git add index.html
+            git commit -m "chore: sync production data from Google Sheet"
+            git push
+          fi
