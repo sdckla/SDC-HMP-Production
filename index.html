@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>SDC × HMP 생산 계획 시스템</title>
+<title id="page-title">SDC × HMP 생산 계획 시스템</title>
 <style>
 *{box-sizing:border-box;margin:0;padding:0}
 :root{
@@ -171,8 +171,8 @@ input:focus,select:focus,textarea:focus{border-color:var(--accent)}
   <div class="month-row">
     <label data-i18n="target_month">대상 월</label>
     <select id="sel-month" style="width:auto" onchange="saveOrders()">
-      <option>2026년 6월</option><option>2026년 7월</option><option>2026년 8월</option>
-      <option>2026년 9월</option><option>2026년 10월</option><option>2026년 11월</option><option>2026년 12월</option>
+      <option value="2026-06">2026년 6월</option><option value="2026-07">2026년 7월</option><option value="2026-08">2026년 8월</option>
+      <option value="2026-09">2026년 9월</option><option value="2026-10">2026년 10월</option><option value="2026-11">2026년 11월</option><option value="2026-12">2026년 12월</option>
     </select>
   </div>
 
@@ -341,8 +341,8 @@ input:focus,select:focus,textarea:focus{border-color:var(--accent)}
   <!-- 월별 누적 이력 관리 카드 -->
   <div class="card">
     <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px;margin-bottom:14px">
-      <span class="ct" style="margin:0">📅 QC 누적 이력 관리</span>
-      <span style="font-size:12px;color:var(--text2)">최신 월일수록 배분에 높은 가중치 적용</span>
+      <span class="ct" style="margin:0" data-i18n="qc_history_mgmt_title">📅 QC 누적 이력 관리</span>
+      <span style="font-size:12px;color:var(--text2)" data-i18n="qc_recency_weight_hint">최신 월일수록 배분에 높은 가중치 적용</span>
     </div>
     <!-- 업로드된 월 목록 -->
     <div id="qc-months-list" style="margin-bottom:14px"></div>
@@ -596,11 +596,11 @@ input:focus,select:focus,textarea:focus{border-color:var(--accent)}
       <div class="fg" style="margin-bottom:10px;display:flex;gap:10px">
         <div style="flex:1">
           <label data-i18n="apply_year_label">연도</label>
-          <input type="number" id="qc-year" placeholder="예: 2026" style="max-width:120px">
+          <input type="number" id="qc-year" placeholder="예: 2026" data-i18n-placeholder="year_placeholder" style="max-width:120px">
         </div>
         <div style="flex:2">
           <label data-i18n="apply_month_label">적용할 월 (시트명)</label>
-          <input type="text" id="qc-sheet-name" placeholder="예: May, June, July" style="max-width:200px">
+          <input type="text" id="qc-sheet-name" placeholder="예: May, June, July" data-i18n-placeholder="month_sheet_placeholder" style="max-width:200px">
         </div>
       </div>
       <div id="qc-drop-zone" class="drop-zone" ondragover="dragOver(event)" ondragleave="dragLeave(event)" ondrop="dropFile(event,'qc')">
@@ -623,7 +623,7 @@ input:focus,select:focus,textarea:focus{border-color:var(--accent)}
       </div>
       <div class="fg" style="margin-bottom:10px">
         <label data-i18n="apply_year_label">연도</label>
-        <input type="number" id="engagement-year" placeholder="예: 2026" style="max-width:120px">
+        <input type="number" id="engagement-year" placeholder="예: 2026" data-i18n-placeholder="year_placeholder" style="max-width:120px">
       </div>
       <div id="engagement-drop-zone" class="drop-zone" ondragover="dragOver(event)" ondragleave="dragLeave(event)" ondrop="dropFile(event,'engagement')">
         <div style="font-size:28px;margin-bottom:8px">📂</div>
@@ -679,6 +679,13 @@ const I18N={
     target_month:'대상 월',
     qc_settings_title:'⚙️ QC 기반 배분 설정', qc_weight_mode_label:'QC 반영 강도',
     qc_mode_none:'반영 안 함 (균등 배분)', qc_mode_soft:'약하게 반영 (±20%)', qc_mode_medium:'중간 반영 (±40%)', qc_mode_strong:'강하게 반영 (±60%)',
+    qc_desc_none:'QC 이력을 무시하고 모든 HMP에 동일하게 배분합니다.', qc_desc_soft:'QC 누적 통과율에 따라 최대 ±20% 범위에서 배분량을 조정합니다.', qc_desc_medium:'QC 누적 통과율에 따라 최대 ±40% 범위에서 배분량을 조정합니다.', qc_desc_strong:'QC 누적 통과율에 따라 최대 ±60% 범위에서 배분량을 강하게 조정합니다.',
+    qc_latest_badge:'최신', qc_previous_n:(n)=>`이전 ${n}`, qc_count_avg:(c,a)=>`${c}명 · 평균 ${a}%`, qc_weighted_pct:(p)=>`가중 ${p}%`,
+    qc_history_empty:'QC 이력 없음. 데이터 업데이트에서 엑셀 파일을 업로드하세요.',
+    qc_summary_hmp_count:'QC 데이터 보유 HMP', qc_summary_cumulative_rate:'누적 가중평균 QC율',
+    qc_summary_good_ratio:'우수 (80%↑) / 양호 (50%↑)', qc_summary_caution:'주의 필요 (50%↓)',
+    qc_th_month:'월', qc_th_rate:'통과율', qc_th_bar:'바', qc_th_weight:'가중치', qc_weighted_avg_label:(r)=>`가중평균: ${r}%`,
+
     qc_unknown_label:'QC 데이터 없는 HMP', qc_unknown_avg:'평균으로 처리', qc_unknown_full:'100%로 처리 (신규 우대)', qc_unknown_low:'낮게 처리 (미참여 패널티)',
     qc_decay_label:'최신 월 가중치 감소율',
     qc_decay_strong:'강하게 (최신 월 90%, 이전 월 81%, 73%...)', qc_decay_medium:'중간 (최신 월 80%, 이전 월 64%, 51%...)', qc_decay_soft:'약하게 (최신 월 70%, 이전 월 49%, 34%...)',
@@ -687,7 +694,7 @@ const I18N={
     note_label:'비고', note_placeholder:'예: Use Offcut',
     filter_title:'🎯 배분 대상 설정', filter_hint:'(설정 안 하면 생산 가능한 전체 HMP에 배분)',
     filter_batch:'기수', filter_cat:'구분', filter_individual:'개인',
-    ind_select:'개인 선택', ind_selected_suffix:'명 선택됨',
+    ind_select:'개인 선택', ind_selected_suffix:'명 선택됨', filter_set_prefix:'✓ 설정됨 —',
     select_all:'전체 선택', deselect_all:'전체 해제', search_name:'이름 검색...',
     add_btn:'추가', load_sample_btn:'샘플 불러오기',
     order_list_title:'주문 목록', items_suffix:'개 품목', order_empty:'주문을 추가하거나 샘플을 불러오세요',
@@ -696,6 +703,7 @@ const I18N={
     fee_chart_title:'생산자별 노동비 & QC 배분 현황', plan_table_title:'품목별 생산 배분 계획',
     th_no:'No.', th_product:'제품명', th_fee:'노동비', th_total_qty:'총수량', th_batch:'기수', th_cat:'구분',
     th_producer:'생산자', th_qc:'QC율', th_weight:'가중치', th_assigned:'배분수량', th_subtotal:'소계', th_note:'비고',
+    qc_history_mgmt_title:'📅 QC 누적 이력 관리', qc_recency_weight_hint:'최신 월일수록 배분에 높은 가중치 적용',
     qc_upload_hint:'💡 엑셀 파일을 업로드하면 자동으로 월별 누적 데이터에 추가됩니다. 데이터 업데이트 → QC 이력 탭에서 업로드하세요.',
     qc_by_hmp_title:'HMP별 누적 QC 통과율', sort_label:'정렬:',
     sort_batch:'기수순', sort_rate_hi:'QC 높은순', sort_rate_lo:'QC 낮은순', sort_qty:'생산량 많은순',
@@ -708,14 +716,14 @@ const I18N={
     reset_to_published_desc:'이 브라우저에 저장된 데이터(HMP 명단·QC 이력·참여도)를 지우고, 현재 배포된 버전에 내장된 최신 데이터로 되돌립니다. 관리자가 새로 게시한 내용이 안 보일 때 사용하세요.',
     reset_to_published_btn:'🔄 최신 게시 데이터로 초기화',
     footer_text:'SDC × HMP Production Planning System · QC 이력 기반 균등 노동비 배분',
-    hmp_add_title:'HMP 추가', name_label:'이름', batch_label:'기수', category_label:'구분',
+    hmp_add_title:'HMP 추가', hmp_edit_title:'HMP 수정', name_label:'이름', batch_label:'기수', category_label:'구분',
     capable_products_label:'생산 가능 품목', capable_input_placeholder:'품목 입력 후 Enter...',
     cancel_btn:'취소', save_btn:'저장',
-    product_add_title:'제품 추가', product_name_label:'제품명', labor_fee_label:'노동비 (UGX/pcs)',
+    product_add_title:'제품 추가', product_edit_title:'제품 수정', product_name_label:'제품명', labor_fee_label:'노동비 (UGX/pcs)',
     data_update_title:'📥 데이터 업데이트', upload_modal_desc:'엑셀 파일을 업로드하거나 JSON 백업으로 복원하세요.',
     utab_hmp:'HMP 명단', utab_labor:'노동비', utab_qc:'QC 이력', utab_engagement:'참여도', utab_json:'JSON 백업',
     format_word:'형식', sheet_word:'시트:', product_code_v:'제품코드(v표시)', month_sheet_example:'월 이름 (예: May, June)',
-    apply_month_label:'적용할 월 (시트명)', drag_excel_here:'엑셀 파일을 여기에 드래그하거나', click_to_select:'클릭하여 파일 선택',
+    apply_year_label:'연도', year_placeholder:'예: 2026', month_sheet_placeholder:'예: May, June, July', apply_month_label:'적용할 월 (시트명)', drag_excel_here:'엑셀 파일을 여기에 드래그하거나', click_to_select:'클릭하여 파일 선택', no_capable_products_title:'생산 가능 품목',
     hmp_overwrite_warn:'⚠ 기존 HMP 데이터를 덮어씁니다. 업로드 전 백업을 권장합니다.',
     labor_overwrite_warn:'⚠ 기존 노동비 데이터를 덮어씁니다.',
     json_restore_hint:'💾 백업 버튼으로 다운로드한 JSON 파일의 내용을 붙여넣으세요. (HMP 명단·노동비·QC 이력·참여도·설정값 모두 포함됩니다)',
@@ -743,13 +751,27 @@ const I18N={
     confirm_delete_hmp:n=>`${n}을(를) 삭제하시겠습니까?`,
     confirm_delete_product:k=>`"${k}" 제품을 삭제하시겠습니까?\n모든 HMP의 생산 가능 품목에서도 제거됩니다.`,
     invalid_json:'올바른 JSON 형식이 아닙니다.',
-    import_success:'복원 완료', name_required:'이름을 입력해주세요.', product_name_required:'제품명을 입력해주세요.',
+    import_success:'복원 완료', name_required:'이름을 입력해주세요.', product_name_required:'제품명을 입력해주세요.', orders_required:'주문을 먼저 입력해주세요.',
     excel_parse_error:e=>`❌ 파일을 읽을 수 없습니다: ${e}`,
     sheet_not_found:'❌ "HMP Information" 시트를 찾을 수 없습니다.',
     labor_sheet_not_found:'❌ "Labor cost" 시트를 찾을 수 없습니다.',
     no_hmp_parsed:'❌ 파싱된 HMP가 없습니다. 파일 형식을 확인해주세요.',
     no_labor_parsed:'❌ 파싱된 노동비 항목이 없습니다.',
     no_qc_parsed:'❌ 파싱된 QC 데이터가 없습니다.',
+    reading_file:'파일 읽는 중...', file_read_error:(m)=>`파일을 읽을 수 없습니다: ${m}`,
+    hmp_update_done:(n)=>`HMP ${n}명 업데이트 완료`, hmp_capable_count:(n)=>`생산 가능 품목 있는 HMP: ${n}명`,
+    labor_columns_not_found:'❌ Product Name / Labor Cost 컬럼을 찾을 수 없습니다.', labor_update_done:(n)=>`노동비 ${n}개 제품 업데이트 완료`,
+    qc_sheet_not_found:'❌ 시트를 찾을 수 없습니다.',
+    month_not_recognized:(s)=>`❌ "${s}"을(를) 월 이름으로 인식하지 못했습니다. 시트명을 January~December 중 하나(예: "August")로 정확히 입력해주세요. 그렇지 않으면 참여도 계산 전체가 깨질 수 있어 업로드를 중단했습니다.`,
+    invalid_year:(v)=>`❌ 연도 값(${v})이 올바르지 않습니다. 2000~2100 사이의 4자리 연도를 입력해주세요.`,
+    qc_month_avg:(a)=>`이번 월 평균 통과율: ${a}%`, engagement_auto_reflected:'참여도(생산가치)도 이 달 품목별 제출수량 × 노동비 단가로 자동 반영됨',
+    unmatched_names_warn:(n,names)=>`HMP 명단과 이름 매칭 실패 ${n}명 (참여도 미반영): ${names}`,
+    unmatched_products_warn:(n,names)=>`노동비 목록과 매칭 안 된 품목 ${n}건(해당 품목 수량은 0으로 계산됨): ${names}`,
+    month_header_not_found:'❌ 월 이름(January 등) 헤더 행을 찾을 수 없습니다.', month_columns_not_found:'❌ 월별 컬럼을 찾을 수 없습니다.',
+    no_engagement_found:'❌ 참여 실적이 있는 HMP를 찾지 못했습니다.',
+    engagement_update_done:(y,n)=>`${y}년 참여 데이터 ${n}명 반영 완료 (다른 연도 이력은 유지됨)`,
+    unmatched_hmp_new_warn:(n,names)=>`HMP 명단과 이름 매칭 실패 ${n}명 (신규 HMP이거나 이름 표기가 다를 수 있음): ${names}`,
+
     cols_not_found:'❌ Product Name / Labor Cost 컬럼을 찾을 수 없습니다.',
     sheet_not_found_qc:'❌ 시트를 찾을 수 없습니다.',
     available_sheets:'사용 가능한 시트:',
@@ -787,7 +809,7 @@ const I18N={
     grade_ratio_73:'QC 70% + 참여도 30%', grade_ratio_64:'QC 60% + 참여도 40%', grade_ratio_55:'QC 50% + 참여도 50%',
     grade_sort_hi:'종합점수 높은순', grade_sort_lo:'종합점수 낮은순', grade_sort_qc:'QC율 높은순', grade_sort_eng:'참여도 높은순',
     grade_dist_title:'등급 분포',
-    grade_evaluated:'등급 산정 완료', grade_pending:'평가 중', grade_sa:'S / A 등급', grade_d:'D 등급',
+    grade_evaluated:'등급 산정 완료', grade_pending:'평가 중', grade_sa:'S / A 등급', grade_d:'D 등급', grade_or_above:' 이상',
     score_unit:'점',
   },
   en:{
@@ -797,6 +819,13 @@ const I18N={
     target_month:'Target Month',
     qc_settings_title:'⚙️ QC-Based Distribution Settings', qc_weight_mode_label:'QC Weight Intensity',
     qc_mode_none:'None (Equal Distribution)', qc_mode_soft:'Soft (±20%)', qc_mode_medium:'Medium (±40%)', qc_mode_strong:'Strong (±60%)',
+    qc_desc_none:'Ignores QC history and distributes equally to all HMPs.', qc_desc_soft:'Adjusts assigned quantity by up to ±20% based on cumulative QC pass rate.', qc_desc_medium:'Adjusts assigned quantity by up to ±40% based on cumulative QC pass rate.', qc_desc_strong:'Strongly adjusts assigned quantity by up to ±60% based on cumulative QC pass rate.',
+    qc_latest_badge:'Latest', qc_previous_n:(n)=>`${n} ago`, qc_count_avg:(c,a)=>`${c} people · avg ${a}%`, qc_weighted_pct:(p)=>`weight ${p}%`,
+    qc_history_empty:'No QC history. Upload an Excel file under Update Data.',
+    qc_summary_hmp_count:'HMPs with QC Data', qc_summary_cumulative_rate:'Cumulative Weighted QC Rate',
+    qc_summary_good_ratio:'Excellent (80%+) / Good (50%+)', qc_summary_caution:'Needs Attention (below 50%)',
+    qc_th_month:'Month', qc_th_rate:'Pass Rate', qc_th_bar:'Bar', qc_th_weight:'Weight', qc_weighted_avg_label:(r)=>`Weighted avg: ${r}%`,
+
     qc_unknown_label:'HMP Without QC Data', qc_unknown_avg:'Treat as Average', qc_unknown_full:'Treat as 100% (Favor New)', qc_unknown_low:'Treat as Low (Penalty)',
     qc_decay_label:'Recent Month Weight Decay',
     qc_decay_strong:'Strong (latest 90%, prior 81%, 73%...)', qc_decay_medium:'Medium (latest 80%, prior 64%, 51%...)', qc_decay_soft:'Soft (latest 70%, prior 49%, 34%...)',
@@ -805,7 +834,7 @@ const I18N={
     note_label:'Note', note_placeholder:'e.g. Use Offcut',
     filter_title:'🎯 Assignment Target Settings', filter_hint:'(If not set, distributed to all capable HMPs)',
     filter_batch:'Batch', filter_cat:'Category', filter_individual:'Individual',
-    ind_select:'Select Individuals', ind_selected_suffix:' selected',
+    ind_select:'Select Individuals', ind_selected_suffix:' selected', filter_set_prefix:'✓ Set —',
     select_all:'Select All', deselect_all:'Deselect All', search_name:'Search name...',
     add_btn:'Add', load_sample_btn:'Load Sample',
     order_list_title:'Order List', items_suffix:' items', order_empty:'Add an order or load a sample',
@@ -814,6 +843,7 @@ const I18N={
     fee_chart_title:'Labor Fee & QC Distribution by Producer', plan_table_title:'Production Distribution Plan by Item',
     th_no:'No.', th_product:'Product', th_fee:'Labor Fee', th_total_qty:'Total Qty', th_batch:'Batch', th_cat:'Category',
     th_producer:'Producer', th_qc:'QC Rate', th_weight:'Weight', th_assigned:'Assigned Qty', th_subtotal:'Subtotal', th_note:'Note',
+    qc_history_mgmt_title:'📅 Cumulative QC History Management', qc_recency_weight_hint:'More recent months get a higher weight in allocation',
     qc_upload_hint:'💡 Uploading an Excel file automatically adds it to the monthly cumulative data. Upload it under Update Data → QC History tab.',
     qc_by_hmp_title:'Cumulative QC Pass Rate by HMP', sort_label:'Sort:',
     sort_batch:'By Batch', sort_rate_hi:'QC High to Low', sort_rate_lo:'QC Low to High', sort_qty:'By Production Qty',
@@ -826,14 +856,14 @@ const I18N={
     reset_to_published_desc:'Clears the data saved in this browser (HMP list, QC history, engagement) and restores the latest data built into the currently published version. Use this if the manager has published an update that is not showing.',
     reset_to_published_btn:'🔄 Reset to Published Data',
     footer_text:'SDC × HMP Production Planning System · QC History-Based Equal Labor Fee Distribution',
-    hmp_add_title:'Add HMP', name_label:'Name', batch_label:'Batch', category_label:'Category',
+    hmp_add_title:'Add HMP', hmp_edit_title:'Edit HMP', name_label:'Name', batch_label:'Batch', category_label:'Category',
     capable_products_label:'Capable Products', capable_input_placeholder:'Type item and press Enter...',
     cancel_btn:'Cancel', save_btn:'Save',
-    product_add_title:'Add Product', product_name_label:'Product Name', labor_fee_label:'Labor Fee (UGX/pcs)',
+    product_add_title:'Add Product', product_edit_title:'Edit Product', product_name_label:'Product Name', labor_fee_label:'Labor Fee (UGX/pcs)',
     data_update_title:'📥 Update Data', upload_modal_desc:'Upload an Excel file or restore from a JSON backup.',
     utab_hmp:'HMP List', utab_labor:'Labor Fees', utab_qc:'QC History', utab_engagement:'Engagement', utab_json:'JSON Backup',
     format_word:'format', sheet_word:'Sheet:', product_code_v:'Product Code (marked v)', month_sheet_example:'Month name (e.g. May, June)',
-    apply_month_label:'Apply to Month (Sheet Name)', drag_excel_here:'Drag an Excel file here, or', click_to_select:'Click to select file',
+    apply_year_label:'Year', year_placeholder:'e.g. 2026', month_sheet_placeholder:'e.g. May, June, July', apply_month_label:'Apply to Month (Sheet Name)', drag_excel_here:'Drag an Excel file here, or', click_to_select:'Click to select file', no_capable_products_title:'Capable Products',
     hmp_overwrite_warn:'⚠ This will overwrite existing HMP data. Backup recommended before uploading.',
     labor_overwrite_warn:'⚠ This will overwrite existing labor fee data.',
     json_restore_hint:'💾 Paste the contents of a JSON file downloaded via the Backup button. (Includes HMP list, labor fees, QC history, engagement data, and settings)',
@@ -860,13 +890,27 @@ const I18N={
     confirm_delete_hmp:n=>`Delete ${n}?`,
     confirm_delete_product:k=>`Delete product "${k}"?\nThis will also remove it from all HMPs' capable products.`,
     invalid_json:'Invalid JSON format.',
-    import_success:'Restore complete', name_required:'Please enter a name.', product_name_required:'Please enter a product name.',
+    import_success:'Restore complete', name_required:'Please enter a name.', product_name_required:'Please enter a product name.', orders_required:'Please enter an order first.',
     excel_parse_error:e=>`❌ Could not read file: ${e}`,
     sheet_not_found:'❌ Could not find the "HMP Information" sheet.',
     labor_sheet_not_found:'❌ Could not find the "Labor cost" sheet.',
     no_hmp_parsed:'❌ No HMP data parsed. Please check the file format.',
     no_labor_parsed:'❌ No labor fee items parsed.',
     no_qc_parsed:'❌ No QC data parsed.',
+    reading_file:'Reading file...', file_read_error:(m)=>`Could not read the file: ${m}`,
+    hmp_update_done:(n)=>`Updated ${n} HMPs`, hmp_capable_count:(n)=>`HMPs with capable products: ${n}`,
+    labor_columns_not_found:'❌ Could not find the Product Name / Labor Cost columns.', labor_update_done:(n)=>`Updated labor cost for ${n} products`,
+    qc_sheet_not_found:'❌ Could not find the sheet.',
+    month_not_recognized:(s)=>`❌ Could not recognize "${s}" as a month name. Please enter the sheet name exactly as one of January–December (e.g. "August"). Upload was stopped because an unrecognized month would break the whole engagement calculation.`,
+    invalid_year:(v)=>`❌ The year value (${v}) is invalid. Please enter a 4-digit year between 2000 and 2100.`,
+    qc_month_avg:(a)=>`This month's average pass rate: ${a}%`, engagement_auto_reflected:'Engagement (production value) for this month was also auto-calculated from submitted qty × labor fee per product',
+    unmatched_names_warn:(n,names)=>`Failed to match ${n} name(s) to the roster (engagement not reflected): ${names}`,
+    unmatched_products_warn:(n,names)=>`${n} product(s) did not match the labor fee list (counted as 0): ${names}`,
+    month_header_not_found:'❌ Could not find the month-name header row (e.g. January).', month_columns_not_found:'❌ Could not find the monthly columns.',
+    no_engagement_found:'❌ Could not find any HMP with engagement records.',
+    engagement_update_done:(y,n)=>`Applied ${y} engagement data for ${n} HMPs (other years\' history preserved)`,
+    unmatched_hmp_new_warn:(n,names)=>`Failed to match ${n} name(s) to the roster (may be new HMPs or spelled differently): ${names}`,
+
     cols_not_found:'❌ Could not find Product Name / Labor Cost columns.',
     sheet_not_found_qc:'❌ Sheet not found.',
     available_sheets:'Available sheets:',
@@ -904,7 +948,7 @@ const I18N={
     grade_ratio_73:'QC 70% + Engagement 30%', grade_ratio_64:'QC 60% + Engagement 40%', grade_ratio_55:'QC 50% + Engagement 50%',
     grade_sort_hi:'Highest score', grade_sort_lo:'Lowest score', grade_sort_qc:'Highest QC rate', grade_sort_eng:'Highest engagement',
     grade_dist_title:'Grade Distribution',
-    grade_evaluated:'Graded', grade_pending:'Pending', grade_sa:'S / A grade', grade_d:'D grade',
+    grade_evaluated:'Graded', grade_pending:'Pending', grade_sa:'S / A grade', grade_d:'D grade', grade_or_above:' or above',
     score_unit:' pts',
   }
 };
@@ -917,6 +961,7 @@ function t(key,...args){
 
 function applyI18n(){
   document.documentElement.lang=currentLang==='ko'?'ko':'en';
+  document.title=currentLang==='ko'?'SDC × HMP 생산 계획 시스템':'SDC × HMP Production Planning System';
   document.querySelectorAll('[data-i18n]').forEach(el=>{
     const key=el.getAttribute('data-i18n');
     if(I18N[currentLang]?.[key]!==undefined) el.textContent=I18N[currentLang][key];
@@ -926,6 +971,16 @@ function applyI18n(){
     if(I18N[currentLang]?.[key]!==undefined) el.placeholder=I18N[currentLang][key];
   });
   document.getElementById('lang-toggle-btn').textContent=currentLang==='ko'?'🌐 EN':'🌐 한국어';
+  const monthNames=['January','February','March','April','May','June','July','August','September','October','November','December'];
+  document.querySelectorAll('#sel-month option').forEach(opt=>{
+    const parts=(opt.value||'').split('-');
+    if(parts.length!==2) return;
+    const y=parts[0],m=parseInt(parts[1],10);
+    opt.textContent=currentLang==='ko'?`${y}년 ${m}월`:`${monthNames[m-1]} ${y}`;
+  });
+  document.querySelectorAll('#hmp-batch option').forEach(opt=>{
+    if(opt.value) opt.textContent=batchLabel(opt.value);
+  });
 }
 
 function toggleLang(){
@@ -1211,7 +1266,7 @@ function weightBadgeClass(w){
   return 'w-none';
 }
 function weightLabel(w,mode){
-  if(mode==='none') return '기본';
+  if(mode==='none') return t('default_label');
   if(w>=1.15) return `×${w.toFixed(2)} ↑↑`;
   if(w>=1.0) return `×${w.toFixed(2)} ↑`;
   if(w>=0.8) return `×${w.toFixed(2)} ↓`;
@@ -1330,7 +1385,7 @@ function updateQcSettingDesc(){
   const mode=settings.qcWeightMode;
   const decay=settings.qcDecay||0.8;
   const months=(window.QC_HISTORY||[]).length;
-  const desc={none:'QC 이력을 무시하고 모든 HMP에 동일하게 배분합니다.',soft:'QC 누적 통과율에 따라 최대 ±20% 범위에서 배분량을 조정합니다.',medium:'QC 누적 통과율에 따라 최대 ±40% 범위에서 배분량을 조정합니다.',strong:'QC 누적 통과율에 따라 최대 ±60% 범위에서 배분량을 강하게 조정합니다.'};
+  const desc={none:t('qc_desc_none'),soft:t('qc_desc_soft'),medium:t('qc_desc_medium'),strong:t('qc_desc_strong')};
   const decayDesc=months>1?t('cumulative_applied',months,Math.round(decay*100)):'';
   document.getElementById('qc-setting-desc').textContent=(desc[mode]||'')+decayDesc;
 }
@@ -1376,6 +1431,20 @@ function importData(){
 function catClass(cat){const c=(cat||'').toUpperCase();if(c.includes('UNIFORM'))return'cat-U';if(c.includes('ASSISTANT'))return'cat-A';if(c.includes('SKILLED'))return'cat-S';if(c.includes('DESIGN'))return'cat-D';if(c.includes('PARTNER'))return'cat-P';return'cat-H';}
 function catLabel(cat){const c=(cat||'').toUpperCase();if(c.includes('UNIFORM'))return'UNIFORM';if(c.includes('ASSISTANT'))return'ASST.T';if(c.includes('SKILLED'))return'SKILLED';if(c.includes('DESIGN'))return'DESIGN';if(c.includes('PARTNER'))return'PARTNER';return'HMP';}
 function bCls(b){return'b'+(b<=8?b:1);}
+// Language-aware "batch" / "count" labels used throughout the QC/Grade/HMP tabs and CSV export.
+// Korean shows the traditional "N기" suffix; English shows "Batch N" / "N people" etc.
+function batchLabel(b){return currentLang==='ko'?`${b}기`:`Batch ${b}`;}
+function countLabel(n){return currentLang==='ko'?`${n}명`:(n===1?`${n} person`:`${n} people`);}
+// QC month labels are stored as Korean strings (e.g. "2026년 5월") regardless of UI language
+// (existing historical data + migration logic depend on this exact stored format). This only
+// reformats the label for DISPLAY when the UI is in English, without touching stored data.
+function displayQcLabel(label){
+  if(currentLang==='ko') return label;
+  const m=/^(\d{4})년\s*(\d{1,2})월$/.exec(label||'');
+  if(!m) return label;
+  const MN=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+  return `${MN[parseInt(m[2],10)-1]} ${m[1]}`;
+}
 function closeModal(id){document.getElementById(id).classList.remove('open');}
 
 function go(t){
@@ -1394,7 +1463,7 @@ function refreshAllUI(){rebuildProductSelect();setupHmpFilters();renderHMPList()
 // ── 제품 선택 ──
 function rebuildProductSelect(){
   const sel=document.getElementById('inp-prod'),prev=sel.value;
-  sel.innerHTML='<option value="">-- 제품 선택 --</option>';
+  sel.innerHTML=`<option value="">${t('select_product')}</option>`;
   const all=[...new Set([...PRODUCERS.flatMap(p=>p.capable),...Object.keys(LABOR_FEE)])].sort();
   all.forEach(p=>{const o=document.createElement('option');o.value=p;o.textContent=p;sel.appendChild(o);});
   if(prev)sel.value=prev;
@@ -1408,7 +1477,7 @@ function onProdChange(){
   const elig=PRODUCERS.filter(p=>p.capable.includes(k));
   if(!elig.length){el.innerHTML='<span style="color:var(--red)">'+t('no_eligible_warn')+'</span>';return;}
   const byB={};elig.forEach(p=>byB[p.batch]=(byB[p.batch]||0)+1);
-  const s=Object.entries(byB).sort((a,b)=>a[0]-b[0]).map(([b,c])=>`${b}기 ${c}명`).join(', ');
+  const s=Object.entries(byB).sort((a,b)=>a[0]-b[0]).map(([b,c])=>`${batchLabel(b)} ${countLabel(c)}`).join(', ');
   el.textContent=`${t('eligible_count',elig.length,s)} · ${t('fee_label').split(' ')[0]||''} ${fee.toLocaleString()} UGX/pcs`;
 }
 
@@ -1444,7 +1513,7 @@ function addOrder(){
 }
 function removeOrder(i){orders.splice(i,1);renderOrders();saveOrders();}
 function renderOrders(){
-  document.getElementById('ocnt').textContent=orders.length+'개 품목';
+  document.getElementById('ocnt').textContent=orders.length+t('items_suffix');
   const el=document.getElementById('olist');
   if(!orders.length){el.innerHTML=`<div class="empty">${t('order_empty')}</div>`;document.getElementById('ototal').textContent='';return;}
   const tot=orders.reduce((s,o)=>s+o.qty*o.fee,0);
@@ -1464,7 +1533,7 @@ function getFilterBadge(filter){
   if(!filter||(!filter.batches?.length&&!filter.cats?.length&&!filter.inds?.length))
     return `<span class="filter-badge fb-all">${t('all_label')} HMP</span>`;
   const parts=[];
-  if(filter.batches?.length) parts.push(`<span class="filter-badge fb-batch">${filter.batches.map(b=>b+(currentLang==='ko'?'기':'')).join(' ')}</span>`);
+  if(filter.batches?.length) parts.push(`<span class="filter-badge fb-batch">${filter.batches.map(b=>batchLabel(b)).join(' ')}</span>`);
   if(filter.cats?.length) parts.push(`<span class="filter-badge fb-cat">${filter.cats.join(' ')}</span>`);
   if(filter.inds?.length) parts.push(`<span class="filter-badge fb-ind">${t('filter_individual')} ${filter.inds.length}${t('people_suffix')}</span>`);
   return parts.join(' ');
@@ -1544,7 +1613,7 @@ function equalizeDistribute(orders,producers){
 }
 
 function generate(){
-  if(!orders.length){alert('주문을 먼저 입력해주세요.');return;}
+  if(!orders.length){alert(t('orders_required'));return;}
   planResult=equalizeDistribute(orders,PRODUCERS);
   renderPlan();go('plan');
 }
@@ -1576,7 +1645,7 @@ function renderPlan(){
 function renderBatchFilter(){
   const batches=[...new Set(PRODUCERS.map(p=>p.batch))].sort();
   document.getElementById('bf').innerHTML=[t('all_label'),...batches].map((v,i)=>
-    `<button class="chip ${i===0&&activeBatch===null?'on':activeBatch===v?'on':''}" onclick="filterBatch(${v===t('all_label')?'null':v})">${v===t('all_label')?t('all_label'):v+(currentLang==='ko'?'기':'')}</button>`).join('');
+    `<button class="chip ${i===0&&activeBatch===null?'on':activeBatch===v?'on':''}" onclick="filterBatch(${v===t('all_label')?'null':v})">${v===t('all_label')?t('all_label'):batchLabel(v)}</button>`).join('');
 }
 function filterBatch(b){activeBatch=b;renderBatchFilter();renderFeeChart(b);renderPlanTable(b);}
 
@@ -1618,10 +1687,10 @@ function renderPlanTable(bFilter){
       const rate=getQcRate(p.name);
       const rateStr=rate!==null?`${rate}%`:'-';
       const w=weights[p.name]||1;
-      const wStr=mode==='none'?'기본':weightLabel(w,mode);
+      const wStr=mode==='none'?t('default_label'):weightLabel(w,mode);
       rows+=`<tr>`;
       if(i===0)rows+=`<td rowspan="${ps.length}" style="font-weight:600">${no}</td><td rowspan="${ps.length}" style="font-weight:500;white-space:nowrap">${o.name}</td><td rowspan="${ps.length}" style="font-size:12px;color:var(--text2)">${o.fee.toLocaleString()}</td><td rowspan="${ps.length}">${o.qty.toLocaleString()}</td>`;
-      rows+=`<td><span class="bdg ${bCls(p.batch)}">${p.batch}기</span></td>
+      rows+=`<td><span class="bdg ${bCls(p.batch)}">${batchLabel(p.batch)}</span></td>
         <td><span class="bdg ${catClass(p.category)}" style="font-size:10px">${catLabel(p.category)}</span></td>
         <td style="font-size:12px">${p.name}</td>
         <td><span class="bdg ${qcBadgeClass(rate)}" style="font-size:10px">${rateStr}</span></td>
@@ -1639,19 +1708,23 @@ function exportCSV(){
   if(!planResult)return;
   const{assign,weights}=planResult;
   const month=document.getElementById('sel-month').value;
-  let csv='\uFEFFNo.,제품명,노동비(UGX),총수량,기수,구분,생산자,QC통과율,가중치,배분수량,소계(UGX),비고\n';
+  const csvHeader=currentLang==='ko'
+    ?'No.,제품명,노동비(UGX),총수량,기수,구분,생산자,QC통과율,가중치,배분수량,소계(UGX),비고'
+    :'No.,Product,Labor Fee (UGX),Total Qty,Batch,Category,Producer,QC Pass Rate,Weight,Assigned Qty,Subtotal (UGX),Note';
+  let csv='\uFEFF'+csvHeader+'\n';
   let no=1;
   orders.forEach(o=>{
     PRODUCERS.filter(p=>assign[p.name][o.key]?.qty>0).forEach((p,i)=>{
       const a=assign[p.name][o.key];
       const rate=getQcRate(p.name);
       const w=weights[p.name]||1;
-      csv+=`${i===0?no:''},${i===0?'"'+o.name+'"':''},${i===0?o.fee:''},${i===0?o.qty:''},${p.batch}기,${catLabel(p.category)},"${p.name}",${rate!==null?rate+'%':'N/A'},${w.toFixed(2)},${a.qty},${a.qty*a.fee},${i===0?(o.note||''):''}\n`;
+      csv+=`${i===0?no:''},${i===0?'"'+o.name+'"':''},${i===0?o.fee:''},${i===0?o.qty:''},${batchLabel(p.batch)},${catLabel(p.category)},"${p.name}",${rate!==null?rate+'%':'N/A'},${w.toFixed(2)},${a.qty},${a.qty*a.fee},${i===0?(o.note||''):''}\n`;
     });no++;
   });
   const blob=new Blob([csv],{type:'text/csv;charset=utf-8'});
   const url=URL.createObjectURL(blob);const a=document.createElement('a');
-  a.href=url;a.download=month+'_생산계획_QC반영.csv';a.click();
+  const fnameSuffix=currentLang==='ko'?'_생산계획_QC반영.csv':'_production_plan_QC.csv';
+  a.href=url;a.download=month+fnameSuffix;a.click();
 }
 
 // ── QC 탭 ──
@@ -1675,22 +1748,22 @@ function renderQCTab(){
         const w=Math.pow(decay,idx);
         const count=Object.keys(m.data||{}).length;
         const avg=Math.round(Object.values(m.data||{}).filter(d=>d.submitted>0).reduce((s,d)=>s+d.rate,0)/Math.max(1,Object.values(m.data||{}).filter(d=>d.submitted>0).length));
-        const uploadDate=new Date(m.uploadedAt).toLocaleDateString('ko-KR');
+        const uploadDate=new Date(m.uploadedAt).toLocaleDateString(currentLang==='ko'?'ko-KR':'en-US');
         return`<div style="display:flex;align-items:center;gap:10px;padding:8px 12px;background:var(--surface2);border-radius:var(--radius);font-size:13px">
-          <span class="bdg" style="background:${idx===0?'var(--accent)':'var(--border2)'};color:${idx===0?'#fff':'var(--text2)'};min-width:52px;text-align:center">${idx===0?'최신':'이전 '+idx}</span>
-          <span style="font-weight:500;min-width:80px">${m.label||m.sheet}</span>
-          <span style="color:var(--text2);font-size:12px">${count}명 · 평균 ${avg}%</span>
+          <span class="bdg" style="background:${idx===0?'var(--accent)':'var(--border2)'};color:${idx===0?'#fff':'var(--text2)'};min-width:52px;text-align:center">${idx===0?t('qc_latest_badge'):t('qc_previous_n',idx)}</span>
+          <span style="font-weight:500;min-width:80px">${displayQcLabel(m.label||m.sheet)}</span>
+          <span style="color:var(--text2);font-size:12px">${t('qc_count_avg',count,avg)}</span>
           <div style="flex:1;display:flex;align-items:center;gap:6px">
             <div style="flex:1;height:6px;background:var(--border);border-radius:3px;overflow:hidden">
               <div style="height:100%;width:${Math.round(w*100)}%;background:var(--accent);border-radius:3px"></div>
             </div>
-            <span style="font-size:12px;color:var(--accent);font-weight:500;min-width:36px">가중 ${Math.round(w*100)}%</span>
+            <span style="font-size:12px;color:var(--accent);font-weight:500;min-width:36px">${t('qc_weighted_pct',Math.round(w*100))}</span>
           </div>
           <span style="font-size:11px;color:var(--text3)">${uploadDate}</span>
-          <button class="btn btn-sm btn-d" onclick="removeQcMonth('${m.periodKey||m.sheet}')" style="padding:2px 8px">삭제</button>
+          <button class="btn btn-sm btn-d" onclick="removeQcMonth('${m.periodKey||m.sheet}')" style="padding:2px 8px">${t('delete_btn')}</button>
         </div>`;
       }).join('')+`</div>`
-    :'<div class="empty">QC 이력 없음. 데이터 업데이트에서 엑셀 파일을 업로드하세요.</div>';
+    :`<div class="empty">${t('qc_history_empty')}</div>`;
 
   // ── 가중치 미리보기 ──
   document.getElementById('qc-weighted-preview').innerHTML=history.length>1
@@ -1706,16 +1779,16 @@ function renderQCTab(){
   const mid=weightedRates.filter(r=>r>=50&&r<80).length;
   const lo=weightedRates.filter(r=>r<50).length;
   document.getElementById('qc-summary-grid').innerHTML=`
-    <div class="smc"><div class="lbl">QC 데이터 보유 HMP</div><div class="val">${weightedRates.length}명</div></div>
-    <div class="smc"><div class="lbl">누적 가중평균 QC율</div><div class="val">${avg2}%</div></div>
-    <div class="smc"><div class="lbl">우수 (80%↑) / 양호 (50%↑)</div><div class="val">${hi}명 / ${mid}명</div></div>
-    <div class="smc"><div class="lbl">주의 필요 (50%↓)</div><div class="val" style="color:var(--red)">${lo}명</div></div>`;
+    <div class="smc"><div class="lbl">${t('qc_summary_hmp_count')}</div><div class="val">${countLabel(weightedRates.length)}</div></div>
+    <div class="smc"><div class="lbl">${t('qc_summary_cumulative_rate')}</div><div class="val">${avg2}%</div></div>
+    <div class="smc"><div class="lbl">${t('qc_summary_good_ratio')}</div><div class="val">${countLabel(hi)} / ${countLabel(mid)}</div></div>
+    <div class="smc"><div class="lbl">${t('qc_summary_caution')}</div><div class="val" style="color:var(--red)">${countLabel(lo)}</div></div>`;
 
   // 기수 필터 초기화 (처음 한 번만)
   if(!document.getElementById('qc-batch-filter').querySelector('.chip')){
     const batches=[...new Set(Object.values(weighted).map(d=>d.batch).filter(Boolean))].sort();
-    document.getElementById('qc-batch-filter').innerHTML='<span style="font-size:12px;color:var(--text2);font-weight:500">기수:</span>'+
-      [t('all_label'),...batches].map((v,i)=>`<button class="chip ${i===0?'on':''}" onclick="filterQcBatch(${v===t('all_label')?'null':v},this)">${v===t('all_label')?t('all_label'):v+(currentLang==='ko'?'기':'')}</button>`).join('');
+    document.getElementById('qc-batch-filter').innerHTML=`<span style="font-size:12px;color:var(--text2);font-weight:500">${t('batch_colon')}</span>`+
+      [t('all_label'),...batches].map((v,i)=>`<button class="chip ${i===0?'on':''}" onclick="filterQcBatch(${v===t('all_label')?'null':v},this)">${v===t('all_label')?t('all_label'):batchLabel(v)}</button>`).join('');
   }
   renderQCList();
   renderQCDistChart();
@@ -1727,7 +1800,7 @@ window.removeQcMonth=function(periodKey){
   localStorage.setItem('sdc_qc_history',JSON.stringify(window.QC_HISTORY));
   computeWeightedQC();
   // 기수 필터 리셋
-  document.getElementById('qc-batch-filter').innerHTML='<span style="font-size:12px;color:var(--text2);font-weight:500">기수:</span>';
+  document.getElementById('qc-batch-filter').innerHTML=`<span style="font-size:12px;color:var(--text2);font-weight:500">${t('batch_colon')}</span>`;
   activeQcBatch=null;
   renderQCTab();
 };
@@ -1764,7 +1837,7 @@ function renderQCList(){
       const hIdx=sortedHistory.findIndex(h=>h.label===m.label||h.sheet===m.label);
       const w=hIdx>=0?Math.pow(decay,hIdx):m.weight/100;
       return`<div style="display:grid;grid-template-columns:80px 60px 1fr 50px;gap:6px;align-items:center;font-size:12px;padding:3px 0;border-bottom:1px solid var(--border)">
-        <span style="color:var(--text2)">${m.label}</span>
+        <span style="color:var(--text2)">${displayQcLabel(m.label)}</span>
         <span style="text-align:right;font-weight:500">${m.rate}%</span>
         <div style="display:flex;align-items:center;gap:4px">
           <div style="flex:1;height:4px;background:var(--border);border-radius:2px;overflow:hidden">
@@ -1777,7 +1850,7 @@ function renderQCList(){
     const isMultiMonth=d.months.length>1;
     return`<div class="qc-card">
       <div style="display:flex;align-items:center;gap:10px;margin-bottom:${isMultiMonth?'8px':'0'}">
-        <span class="bdg ${bCls(d.batch||1)}">${d.batch||'?'}기</span>
+        <span class="bdg ${bCls(d.batch||1)}">${d.batch?batchLabel(d.batch):'?'}</span>
         <span style="font-weight:600;font-size:13px;flex:1">${name}</span>
         <div class="qc-bar-wrap" style="flex:2">
           <div class="qc-bar-bg"><div class="qc-bar-fill" style="width:${pcts}%;background:${barColor}"></div></div>
@@ -1787,10 +1860,10 @@ function renderQCList(){
       </div>
       ${isMultiMonth?`<div style="padding:0 4px">
         <div style="display:grid;grid-template-columns:80px 60px 1fr 50px;gap:6px;font-size:11px;color:var(--text3);padding:2px 0;border-bottom:1px solid var(--border);margin-bottom:2px">
-          <span>월</span><span style="text-align:right">통과율</span><span>바</span><span style="text-align:right">가중치</span>
+          <span>${t('qc_th_month')}</span><span style="text-align:right">${t('qc_th_rate')}</span><span>${t('qc_th_bar')}</span><span style="text-align:right">${t('qc_th_weight')}</span>
         </div>
         ${monthRows}
-        <div style="text-align:right;font-size:12px;font-weight:600;color:${barColor};padding-top:4px">가중평균: ${rate}%</div>
+        <div style="text-align:right;font-size:12px;font-weight:600;color:${barColor};padding-top:4px">${t('qc_weighted_avg_label',rate)}</div>
       </div>`:''}
     </div>`;
   }).join('');
@@ -1842,15 +1915,15 @@ function renderEngagementTab(){
   const mid=scores.filter(s=>s>=0.3&&s<0.6).length;
   const lo=scores.filter(s=>s<0.3).length;
   document.getElementById('eng-summary-grid').innerHTML=`
-    <div class="smc"><div class="lbl" data-i18n="eng_has_data">참여 데이터 보유 HMP</div><div class="val">${withData.length}${t('people_suffix')}</div></div>
-    <div class="smc"><div class="lbl" data-i18n="eng_avg">전체 평균 참여도</div><div class="val">${avg}%</div></div>
-    <div class="smc"><div class="lbl" data-i18n="eng_active_mid">활발 (60%↑) / 보통 (30%↑)</div><div class="val">${hi}${t('people_suffix')} / ${mid}${t('people_suffix')}</div></div>
-    <div class="smc"><div class="lbl" style="color:var(--red)" data-i18n="eng_low">저조 (30%↓)</div><div class="val" style="color:var(--red)">${lo}${t('people_suffix')}</div></div>`;
+    <div class="smc"><div class="lbl">${t('eng_has_data')}</div><div class="val">${withData.length}${t('people_suffix')}</div></div>
+    <div class="smc"><div class="lbl">${t('eng_avg')}</div><div class="val">${avg}%</div></div>
+    <div class="smc"><div class="lbl">${t('eng_active_mid')}</div><div class="val">${hi}${t('people_suffix')} / ${mid}${t('people_suffix')}</div></div>
+    <div class="smc"><div class="lbl" style="color:var(--red)">${t('eng_low')}</div><div class="val" style="color:var(--red)">${lo}${t('people_suffix')}</div></div>`;
 
   if(!document.getElementById('eng-batch-filter').querySelector('.chip')){
     const batches=[...new Set(PRODUCERS.map(p=>p.batch))].sort((a,b)=>a-b);
     document.getElementById('eng-batch-filter').innerHTML=`<span style="font-size:12px;color:var(--text2);font-weight:500">${t('batch_colon')}</span>`+
-      [t('all_label'),...batches].map((v,i)=>`<button class="chip ${i===0?'on':''}" onclick="filterEngBatch(${v===t('all_label')?'null':v},this)">${v===t('all_label')?t('all_label'):v+(currentLang==='ko'?'기':'')}</button>`).join('');
+      [t('all_label'),...batches].map((v,i)=>`<button class="chip ${i===0?'on':''}" onclick="filterEngBatch(${v===t('all_label')?'null':v},this)">${v===t('all_label')?t('all_label'):batchLabel(v)}</button>`).join('');
   }
   renderEngagementList();
   renderEngagementDistChart();
@@ -1903,13 +1976,13 @@ function renderEngagementList(){
     }).join(''):'';
     return`<div class="qc-card">
       <div style="display:flex;align-items:center;gap:10px;margin-bottom:${eng?'8px':'0'}">
-        <span class="bdg ${bCls(p.batch)}">${p.batch}${currentLang==='ko'?'기':''}</span>
+        <span class="bdg ${bCls(p.batch)}">${batchLabel(p.batch)}</span>
         <span style="font-weight:600;font-size:13px;flex:1">${p.name}</span>
         <div class="qc-bar-wrap" style="flex:2">
           <div class="qc-bar-bg"><div class="qc-bar-fill" style="width:${pct??0}%;background:${barColor}"></div></div>
           <span class="qc-rate-badge" style="color:${barColor}">${pct!==null?pct+'%':'N/A'}</span>
         </div>
-        ${eng?`<span style="font-size:11px;color:var(--text2)">${eng.months}${t('month_unit')} · ${currentLang==='ko'?'누적':'cumulative'} ${eng.total.toLocaleString()}</span>`:`<span style="font-size:11px;color:var(--text3)" data-i18n="eng_no_history">참여 이력 없음</span>`}
+        ${eng?`<span style="font-size:11px;color:var(--text2)">${eng.months}${t('month_unit')} · ${currentLang==='ko'?'누적':'cumulative'} ${eng.total.toLocaleString()}</span>`:`<span style="font-size:11px;color:var(--text3)">${t('eng_no_history')}</span>`}
       </div>
       ${eng?`<div style="display:flex;gap:4px;padding:4px 4px 0">${monthBars}</div>`:''}
     </div>`;
@@ -1966,7 +2039,7 @@ function renderGradeCriteriaDesc(){
   const qcPct=Math.round(qcRatio*100),engPct=100-qcPct;
   const rows=GRADE_THRESHOLDS.map((g,i)=>{
     const next=GRADE_THRESHOLDS[i-1];
-    const rangeLabel=next?`${g.min}~${next.min-0.1}점`:`${g.min}점 이상`;
+    const rangeLabel=next?`${g.min}~${next.min-0.1}${t('score_unit')}`:`${g.min}${t('score_unit')}${t('grade_or_above')}`;
     return`<span style="display:inline-flex;align-items:center;gap:4px;margin-right:14px"><span style="width:10px;height:10px;border-radius:3px;background:${g.color};display:inline-block"></span><b style="color:${g.color}">${g.grade}</b> ${rangeLabel}</span>`;
   }).join('');
   document.getElementById('grade-desc').innerHTML=
@@ -1983,15 +2056,15 @@ function renderGradeTab(){
   const counts={};GRADE_THRESHOLDS.forEach(g=>counts[g.grade]=0);
   graded.forEach(i=>counts[i.grade]++);
   document.getElementById('grade-summary-grid').innerHTML=`
-    <div class="smc"><div class="lbl" data-i18n="grade_evaluated">등급 산정 완료</div><div class="val">${graded.length}${t('people_suffix')}</div></div>
-    <div class="smc"><div class="lbl" data-i18n="grade_pending">평가 중</div><div class="val" style="color:var(--text3)">${pending}${t('people_suffix')}</div></div>
-    <div class="smc"><div class="lbl" data-i18n="grade_sa">S / A 등급</div><div class="val" style="color:${gradeColor('S')}">${counts.S+counts.A}${t('people_suffix')}</div></div>
-    <div class="smc"><div class="lbl" style="color:var(--red)" data-i18n="grade_d">D 등급</div><div class="val" style="color:var(--red)">${counts.D}${t('people_suffix')}</div></div>`;
+    <div class="smc"><div class="lbl">${t('grade_evaluated')}</div><div class="val">${graded.length}${t('people_suffix')}</div></div>
+    <div class="smc"><div class="lbl">${t('grade_pending')}</div><div class="val" style="color:var(--text3)">${pending}${t('people_suffix')}</div></div>
+    <div class="smc"><div class="lbl">${t('grade_sa')}</div><div class="val" style="color:${gradeColor('S')}">${counts.S+counts.A}${t('people_suffix')}</div></div>
+    <div class="smc"><div class="lbl" style="color:var(--red)">${t('grade_d')}</div><div class="val" style="color:var(--red)">${counts.D}${t('people_suffix')}</div></div>`;
 
   if(!document.getElementById('grade-batch-filter').querySelector('.chip')){
     const batches=[...new Set(PRODUCERS.map(p=>p.batch))].sort((a,b)=>a-b);
     document.getElementById('grade-batch-filter').innerHTML=`<span style="font-size:12px;color:var(--text2);font-weight:500">${t('batch_colon')}</span>`+
-      [t('all_label'),...batches].map((v,i)=>`<button class="chip ${i===0?'on':''}" onclick="filterGradeBatch(${v===t('all_label')?'null':v},this)">${v===t('all_label')?t('all_label'):v+(currentLang==='ko'?'기':'')}</button>`).join('');
+      [t('all_label'),...batches].map((v,i)=>`<button class="chip ${i===0?'on':''}" onclick="filterGradeBatch(${v===t('all_label')?'null':v},this)">${v===t('all_label')?t('all_label'):batchLabel(v)}</button>`).join('');
   }
   renderGradeList();
   renderGradeDistChart();
@@ -2024,10 +2097,10 @@ function buildGradeDetailHTML(p){
 
   const qcSection=qcMonths.length?`
     <div style="display:grid;grid-template-columns:70px 55px 1fr 45px;gap:6px;font-size:11px;color:var(--text3);padding:2px 0;border-bottom:1px solid var(--border);margin-bottom:2px">
-      <span>월</span><span style="text-align:right">통과율</span><span></span><span style="text-align:right">가중치</span>
+      <span>${t('qc_th_month')}</span><span style="text-align:right">${t('qc_th_rate')}</span><span></span><span style="text-align:right">${t('qc_th_weight')}</span>
     </div>
     ${qcMonths.map(m=>`<div style="display:grid;grid-template-columns:70px 55px 1fr 45px;gap:6px;align-items:center;font-size:12px;padding:3px 0;border-bottom:1px solid var(--border)">
-      <span style="color:var(--text2)">${m.label}</span>
+      <span style="color:var(--text2)">${displayQcLabel(m.label)}</span>
       <span style="text-align:right;font-weight:500">${m.rate}%</span>
       <div style="height:4px;background:var(--border);border-radius:2px;overflow:hidden"><div style="height:100%;width:${Math.min(100,m.rate||0)}%;background:${qcRateColor(m.rate)};border-radius:2px"></div></div>
       <span style="text-align:right;color:var(--accent);font-size:11px">×${(m.weight/100).toFixed(2)}</span>
@@ -2101,7 +2174,7 @@ function renderGradeList(){
     return`<div class="qc-card">
       <div style="display:flex;align-items:center;gap:10px;cursor:pointer" onclick="toggleGradeDetail('${safeName}')">
         <span style="font-size:11px;color:var(--text3);width:12px;flex-shrink:0">${isOpen?'▾':'▸'}</span>
-        <span class="bdg ${bCls(p.batch)}">${p.batch}${currentLang==='ko'?'기':''}</span>
+        <span class="bdg ${bCls(p.batch)}">${batchLabel(p.batch)}</span>
         <span style="font-weight:600;font-size:13px;flex:1">${p.name}</span>
         <span style="font-size:11px;color:var(--text2)">QC ${qcStr} · ${currentLang==='ko'?'참여':'Eng'} ${engStr}</span>
         <span style="min-width:44px;text-align:right;font-size:12px;color:var(--text2)">${p.score!==null?p.score+t('score_unit'):''}</span>
@@ -2135,7 +2208,7 @@ function setupHmpFilters(){
   const batches=[...new Set(PRODUCERS.map(p=>p.batch))].sort();
   const el=document.getElementById('hmp-filters');
   el.innerHTML=`<span style="font-size:12px;font-weight:500;color:var(--text2)">${t('batch_colon')}</span>`+
-    [t('all_label'),...batches].map((v,i)=>`<button class="chip ${i===0?'on':''}" onclick="filterHmp(${v===t('all_label')?'null':v},this)">${v===t('all_label')?t('all_label'):v+(currentLang==='ko'?'기':'')}</button>`).join('');
+    [t('all_label'),...batches].map((v,i)=>`<button class="chip ${i===0?'on':''}" onclick="filterHmp(${v===t('all_label')?'null':v},this)">${v===t('all_label')?t('all_label'):batchLabel(v)}</button>`).join('');
 }
 function filterHmp(b,el){activeHmpBatch=b;document.querySelectorAll('#hmp-filters .chip').forEach(c=>c.classList.remove('on'));el.classList.add('on');renderHMPList();}
 function renderHMPList(){
@@ -2154,7 +2227,7 @@ function renderHMPList(){
     const gradeBadge=gInfo.grade?`<span class="bdg" style="font-size:10px;background:${gradeColor(gInfo.grade)};color:#fff">${gInfo.grade}</span>`:'';
     return`<div class="prow">
       <div style="min-width:200px;display:flex;flex-wrap:wrap;align-items:center;gap:4px">
-        <span class="bdg ${bCls(p.batch)}">${p.batch}기</span>
+        <span class="bdg ${bCls(p.batch)}">${batchLabel(p.batch)}</span>
         <span class="bdg ${catClass(p.category)}" style="font-size:10px">${catLabel(p.category)}</span>
         <span class="bdg ${qcBadgeClass(rate)}" style="font-size:10px">${rateStr}</span>
         ${gradeBadge}
@@ -2174,7 +2247,7 @@ function renderHMPList(){
 
 // ── HMP 모달 ──
 function openAddHmpModal(){capableTags=[];document.getElementById('hmp-modal-title').textContent=t('hmp_add_title');document.getElementById('hmp-edit-idx').value=-1;document.getElementById('hmp-name').value='';document.getElementById('hmp-batch').value=1;document.getElementById('hmp-cat').value='HMP';renderCapableTags();document.getElementById('hmp-modal').classList.add('open');}
-function openEditHmpModal(idx){const p=PRODUCERS[idx];capableTags=[...p.capable];document.getElementById('hmp-modal-title').textContent=currentLang==='ko'?'HMP 수정':'Edit HMP';document.getElementById('hmp-edit-idx').value=idx;document.getElementById('hmp-name').value=p.name;document.getElementById('hmp-batch').value=p.batch;document.getElementById('hmp-cat').value=p.category;renderCapableTags();document.getElementById('hmp-modal').classList.add('open');}
+function openEditHmpModal(idx){const p=PRODUCERS[idx];capableTags=[...p.capable];document.getElementById('hmp-modal-title').textContent=t('hmp_edit_title');document.getElementById('hmp-edit-idx').value=idx;document.getElementById('hmp-name').value=p.name;document.getElementById('hmp-batch').value=p.batch;document.getElementById('hmp-cat').value=p.category;renderCapableTags();document.getElementById('hmp-modal').classList.add('open');}
 function renderCapableTags(){
   const wrap=document.getElementById('capable-wrap'),input=document.getElementById('capable-input');
   wrap.querySelectorAll('.tag-item').forEach(el=>el.remove());
@@ -2206,7 +2279,7 @@ function deleteHMP(idx){if(!confirm(t('confirm_delete_hmp',PRODUCERS[idx].name))
 
 // ── 제품 관리 ──
 function openAddProductModal(){document.getElementById('prod-modal-title').textContent=t('product_add_title');document.getElementById('prod-edit-key').value='';document.getElementById('prod-name').value='';document.getElementById('prod-fee').value='';document.getElementById('product-modal').classList.add('open');}
-function openEditProductModal(key){document.getElementById('prod-modal-title').textContent='제품 수정';document.getElementById('prod-edit-key').value=key;document.getElementById('prod-name').value=key;document.getElementById('prod-fee').value=LABOR_FEE[key]||0;document.getElementById('product-modal').classList.add('open');}
+function openEditProductModal(key){document.getElementById('prod-modal-title').textContent=t('product_edit_title');document.getElementById('prod-edit-key').value=key;document.getElementById('prod-name').value=key;document.getElementById('prod-fee').value=LABOR_FEE[key]||0;document.getElementById('product-modal').classList.add('open');}
 function saveProduct(){
   const name=document.getElementById('prod-name').value.trim();const fee=parseInt(document.getElementById('prod-fee').value)||0;const oldKey=document.getElementById('prod-edit-key').value;
   if(!name){alert(t('product_name_required'));return;}
@@ -2219,7 +2292,7 @@ function renderProductList(){
   const all=Object.keys(LABOR_FEE).filter(k=>!search||k.toLowerCase().includes(search)).sort();
   const capCount={};PRODUCERS.forEach(p=>p.capable.forEach(c=>{capCount[c]=(capCount[c]||0)+1;}));
   document.getElementById('product-tbody').innerHTML=all.map(k=>`<tr>
-    <td style="font-weight:500">${k}</td><td>${LABOR_FEE[k].toLocaleString()} UGX</td><td>${capCount[k]||0}명</td>
+    <td style="font-weight:500">${k}</td><td>${LABOR_FEE[k].toLocaleString()} UGX</td><td>${countLabel(capCount[k]||0)}</td>
     <td><div style="display:flex;gap:4px">
       <button class="btn btn-sm" onclick="openEditProductModal('${k.replace(/'/g,"\\'")}')">${t('edit_btn_sm')}</button>
       <button class="btn btn-sm btn-d" onclick="deleteProduct('${k.replace(/'/g,"\\'")}')">${t('delete_btn')}</button>
@@ -2264,7 +2337,7 @@ function handleFileUpload(e,type){
 // ── 엑셀 파싱 (SheetJS) ──
 function parseExcelFile(file,type){
   const resultEl=document.getElementById(type+'-upload-result');
-  resultEl.innerHTML='<div style="font-size:13px;color:var(--text2)">⏳ 파일 읽는 중...</div>';
+  resultEl.innerHTML=`<div style="font-size:13px;color:var(--text2)">⏳ ${t('reading_file')}</div>`;
   const reader=new FileReader();
   reader.onload=function(e){
     try{
@@ -2275,7 +2348,7 @@ function parseExcelFile(file,type){
       else if(type==='qc') parseQCExcel(wb,resultEl);
       else if(type==='engagement') parseEngagementExcel(wb,resultEl);
     }catch(err){
-      resultEl.innerHTML=`<div class="upload-result-err">❌ 파일을 읽을 수 없습니다: ${err.message}</div>`;
+      resultEl.innerHTML=`<div class="upload-result-err">❌ ${t('file_read_error',err.message)}</div>`;
     }
   };
   reader.readAsArrayBuffer(file);
@@ -2285,7 +2358,7 @@ function parseExcelFile(file,type){
 // 구조: row2=헤더(Category,Batch,No,Name,001,002...), row3=제품명, row4+=데이터
 function parseHMPExcel(wb,resultEl){
   const wsName=wb.SheetNames.find(n=>n.toLowerCase().includes('hmp')||n.toLowerCase().includes('information'));
-  if(!wsName){resultEl.innerHTML='<div class="upload-result-err">❌ "HMP Information" 시트를 찾을 수 없습니다.</div>';return;}
+  if(!wsName){resultEl.innerHTML=`<div class="upload-result-err">${t('sheet_not_found')}</div>`;return;}
   const ws=wb.Sheets[wsName];
   const rows=XLSX.utils.sheet_to_json(ws,{header:1,defval:null});
 
@@ -2318,15 +2391,15 @@ function parseHMPExcel(wb,resultEl){
 
   PRODUCERS=newProducers;
   saveData();refreshAllUI();
-  resultEl.innerHTML=`<div class="upload-result-ok">✅ HMP ${newProducers.length}명 업데이트 완료<br>
-    <span style="font-size:12px">생산 가능 품목 있는 HMP: ${newProducers.filter(p=>p.capable.length>0).length}명</span></div>`;
+  resultEl.innerHTML=`<div class="upload-result-ok">✅ ${t('hmp_update_done',newProducers.length)}<br>
+    <span style="font-size:12px">${t('hmp_capable_count',newProducers.filter(p=>p.capable.length>0).length)}</span></div>`;
 }
 
 // ── 노동비 파일 파싱 ──
 // 구조: 헤더(No/Product Name/Labor Cost), 데이터 행
 function parseLaborExcel(wb,resultEl){
   const wsName=wb.SheetNames.find(n=>n.toLowerCase().includes('labor')||n.toLowerCase().includes('cost'));
-  if(!wsName){resultEl.innerHTML='<div class="upload-result-err">❌ "Labor cost" 시트를 찾을 수 없습니다.</div>';return;}
+  if(!wsName){resultEl.innerHTML=`<div class="upload-result-err">❌ ${t('labor_sheet_not_found')}</div>`;return;}
   const ws=wb.Sheets[wsName];
   const rows=XLSX.utils.sheet_to_json(ws,{header:1,defval:null});
 
@@ -2339,7 +2412,7 @@ function parseLaborExcel(wb,resultEl){
     const feeIdx=row.findIndex(v=>v&&String(v).toLowerCase().includes('labor'));
     if(nameIdx>=0&&feeIdx>=0){nameCol=nameIdx;feeCol=feeIdx;dataStart=r+1;break;}
   }
-  if(nameCol<0){resultEl.innerHTML='<div class="upload-result-err">❌ Product Name / Labor Cost 컬럼을 찾을 수 없습니다.</div>';return;}
+  if(nameCol<0){resultEl.innerHTML=`<div class="upload-result-err">❌ ${t('labor_columns_not_found')}</div>`;return;}
 
   const newLabor={};let count=0;
   for(let r=dataStart;r<rows.length;r++){
@@ -2350,11 +2423,11 @@ function parseLaborExcel(wb,resultEl){
     if(name&&!isNaN(fee)&&fee>0){newLabor[name]=fee;count++;}
   }
 
-  if(!count){resultEl.innerHTML='<div class="upload-result-err">❌ 파싱된 노동비 항목이 없습니다.</div>';return;}
+  if(!count){resultEl.innerHTML=`<div class="upload-result-err">❌ ${t('no_labor_parsed')}</div>`;return;}
 
   LABOR_FEE=newLabor;
   saveData();refreshAllUI();
-  resultEl.innerHTML=`<div class="upload-result-ok">✅ 노동비 ${count}개 제품 업데이트 완료</div>`;
+  resultEl.innerHTML=`<div class="upload-result-ok">✅ ${t('labor_update_done',count)}</div>`;
 }
 
 // ── QC 파일 파싱 ──
@@ -2415,7 +2488,7 @@ function parseQCExcel(wb,resultEl){
            wb.SheetNames.find(n=>n.toLowerCase().includes(targetSheet.toLowerCase()));
   }
   if(!wsName) wsName=wb.SheetNames[wb.SheetNames.length-1];
-  if(!wsName){resultEl.innerHTML='<div class="upload-result-err">❌ 시트를 찾을 수 없습니다.<br>사용 가능한 시트: '+wb.SheetNames.join(', ')+'</div>';return;}
+  if(!wsName){resultEl.innerHTML=`<div class="upload-result-err">${t('qc_sheet_not_found')}<br>${t('available_sheets')} ${wb.SheetNames.join(', ')}</div>`;return;}
 
   const ws=wb.Sheets[wsName];
   const rows=XLSX.utils.sheet_to_json(ws,{header:1,defval:null});
@@ -2443,17 +2516,17 @@ function parseQCExcel(wb,resultEl){
   });
 
   const count=Object.keys(hmpStats).length;
-  if(!count){resultEl.innerHTML='<div class="upload-result-err">❌ 파싱된 QC 데이터가 없습니다.</div>';return;}
+  if(!count){resultEl.innerHTML=`<div class="upload-result-err">❌ ${t('no_qc_parsed')}</div>`;return;}
 
   // 시트명에서 월을 인식하지 못하면(예: "August"가 아니라 "Aug" 등으로 잘못 입력) 업로드를 중단한다.
   // 인식 안 된 월로 그대로 진행하면 잘못된 형식의 기간키가 만들어져 전체 참여도 계산이 깨질 수 있다.
   const monthNum=MONTH_NUM_MAP[wsName.toLowerCase()]||null;
   if(!monthNum){
-    resultEl.innerHTML=`<div class="upload-result-err">❌ "${wsName}"을(를) 월 이름으로 인식하지 못했습니다. 시트명을 January~December 중 하나(예: "August")로 정확히 입력해주세요. 그렇지 않으면 참여도 계산 전체가 깨질 수 있어 업로드를 중단했습니다.</div>`;
+    resultEl.innerHTML=`<div class="upload-result-err">❌ ${t('month_not_recognized',wsName)}</div>`;
     return;
   }
   if(!Number.isInteger(yearInput)||yearInput<2000||yearInput>2100){
-    resultEl.innerHTML=`<div class="upload-result-err">❌ 연도 값(${document.getElementById('qc-year')?.value})이 올바르지 않습니다. 2000~2100 사이의 4자리 연도를 입력해주세요.</div>`;
+    resultEl.innerHTML=`<div class="upload-result-err">❌ ${t('invalid_year',document.getElementById('qc-year')?.value)}</div>`;
     return;
   }
 
@@ -2485,10 +2558,10 @@ function parseQCExcel(wb,resultEl){
   const monthCount=history.length;
   const avg=Math.round(Object.values(hmpStats).filter(d=>d.submitted>0).reduce((s,d)=>s+d.rate,0)/Object.values(hmpStats).filter(d=>d.submitted>0).length);
   resultEl.innerHTML=`<div class="upload-result-ok">${t('qc_updated',label,count,monthCount)}<br>
-    <span style="font-size:12px">이번 월 평균 통과율: ${avg}% · 사용 가능한 시트: ${wb.SheetNames.join(', ')}</span><br>
-    <span style="font-size:12px">✅ 참여도(생산가치)도 이 달 품목별 제출수량 × 노동비 단가로 자동 반영됨</span>
-    ${engResult.unmatchedNames.length?`<br><span style="font-size:12px;color:var(--red)">⚠ HMP 명단과 이름 매칭 실패 ${engResult.unmatchedNames.length}명 (참여도 미반영): ${engResult.unmatchedNames.join(', ')}</span>`:''}
-    ${engResult.unmatchedProducts.length?`<br><span style="font-size:12px;color:var(--red)">⚠ 노동비 목록과 매칭 안 된 품목 ${engResult.unmatchedProducts.length}건(해당 품목 수량은 0으로 계산됨): ${engResult.unmatchedProducts.join(', ')}</span>`:''}
+    <span style="font-size:12px">${t('qc_month_avg',avg)} · ${t('available_sheets')} ${wb.SheetNames.join(', ')}</span><br>
+    <span style="font-size:12px">✅ ${t('engagement_auto_reflected')}</span>
+    ${engResult.unmatchedNames.length?`<br><span style="font-size:12px;color:var(--red)">⚠ ${t('unmatched_names_warn',engResult.unmatchedNames.length,engResult.unmatchedNames.join(', '))}</span>`:''}
+    ${engResult.unmatchedProducts.length?`<br><span style="font-size:12px;color:var(--red)">⚠ ${t('unmatched_products_warn',engResult.unmatchedProducts.length,engResult.unmatchedProducts.join(', '))}</span>`:''}
     </div>`;
 }
 
@@ -2528,7 +2601,7 @@ function parseEngagementExcel(wb,resultEl){
   try{
     const yearInput=parseInt(document.getElementById('engagement-year')?.value)||new Date().getFullYear();
     if(!Number.isInteger(yearInput)||yearInput<2000||yearInput>2100){
-      resultEl.innerHTML=`<div class="upload-result-err">❌ 연도 값(${document.getElementById('engagement-year')?.value})이 올바르지 않습니다. 2000~2100 사이의 4자리 연도를 입력해주세요.</div>`;
+      resultEl.innerHTML=`<div class="upload-result-err">❌ ${t('invalid_year',document.getElementById('engagement-year')?.value)}</div>`;
       return;
     }
     const wsName=wb.SheetNames[0];
@@ -2540,7 +2613,7 @@ function parseEngagementExcel(wb,resultEl){
     for(let i=0;i<rows.length;i++){
       if(rows[i]&&rows[i].some(c=>String(c||'').trim()==='January')){headerIdx=i;break;}
     }
-    if(headerIdx<0){resultEl.innerHTML='<div class="upload-result-err">❌ 월 이름(January 등) 헤더 행을 찾을 수 없습니다.</div>';return;}
+    if(headerIdx<0){resultEl.innerHTML=`<div class="upload-result-err">❌ ${t('month_header_not_found')}</div>`;return;}
 
     const header=rows[headerIdx];
     const monthCols={}; // {"2026-01": colIdx, ...}
@@ -2549,7 +2622,7 @@ function parseEngagementExcel(wb,resultEl){
       const monthNum=MONTH_NUM_MAP[hs.toLowerCase()];
       if(monthNum) monthCols[`${yearInput}-${String(monthNum).padStart(2,'0')}`]=idx;
     });
-    if(!Object.keys(monthCols).length){resultEl.innerHTML='<div class="upload-result-err">❌ 월별 컬럼을 찾을 수 없습니다.</div>';return;}
+    if(!Object.keys(monthCols).length){resultEl.innerHTML=`<div class="upload-result-err">❌ ${t('month_columns_not_found')}</div>`;return;}
 
     // 데이터 행 파싱 (반드시 "(기수)" 접두사가 있는 행만 — Monthly Total 등 합계 행 제외)
     const raw={};
@@ -2572,7 +2645,7 @@ function parseEngagementExcel(wb,resultEl){
     }
 
     const rawCount=Object.keys(raw).length;
-    if(!rawCount){resultEl.innerHTML='<div class="upload-result-err">❌ 참여 실적이 있는 HMP를 찾지 못했습니다.</div>';return;}
+    if(!rawCount){resultEl.innerHTML=`<div class="upload-result-err">❌ ${t('no_engagement_found')}</div>`;return;}
 
     // 이름 1:1 매칭 후, 기존 이력에 이번 연도의 월 데이터만 병합 (다른 연도·다른 사람의 기존 이력은 그대로 유지)
     const nameMap=matchEngagementNames(Object.keys(raw));
@@ -2592,10 +2665,10 @@ function parseEngagementExcel(wb,resultEl){
     if(document.getElementById('s-grade')?.classList.contains('active')) renderGradeTab();
     if(document.getElementById('s-hmp')?.classList.contains('active')) renderHMPList();
 
-    resultEl.innerHTML=`<div class="upload-result-ok">✅ ${yearInput}년 참여 데이터 ${rawCount}명 반영 완료 (다른 연도 이력은 유지됨)
-      ${unmatched.length?`<br><span style="font-size:12px;color:var(--red)">⚠ HMP 명단과 이름 매칭 실패 ${unmatched.length}명 (신규 HMP이거나 이름 표기가 다를 수 있음): ${unmatched.join(', ')}</span>`:''}</div>`;
+    resultEl.innerHTML=`<div class="upload-result-ok">✅ ${t('engagement_update_done',yearInput,rawCount)}
+      ${unmatched.length?`<br><span style="font-size:12px;color:var(--red)">⚠ ${t('unmatched_hmp_new_warn',unmatched.length,unmatched.join(', '))}</span>`:''}</div>`;
   }catch(err){
-    resultEl.innerHTML=`<div class="upload-result-err">❌ 파일을 읽을 수 없습니다: ${err.message||err}</div>`;
+    resultEl.innerHTML=`<div class="upload-result-err">❌ ${t('file_read_error',err.message||err)}</div>`;
   }
 }
 
@@ -2605,7 +2678,7 @@ let filterState={batches:new Set(),cats:new Set(),inds:new Set()};
 function setupOrderFilterPanel(){
   const batches=[...new Set(PRODUCERS.map(p=>p.batch))].sort((a,b)=>a-b);
   document.getElementById('fp-batch').innerHTML=batches.map(b=>
-    `<span class="ftag" data-b="${b}" onclick="toggleBatchFilter(${b},this)">${b}기</span>`).join('');
+    `<span class="ftag" data-b="${b}" onclick="toggleBatchFilter(${b},this)">${batchLabel(b)}</span>`).join('');
 
   const cats=[...new Set(PRODUCERS.map(p=>p.category).filter(Boolean))];
   document.getElementById('fp-cat').innerHTML=cats.map(c=>
@@ -2661,14 +2734,14 @@ function selectAllInd(select){
 }
 
 function updateFilterSummary(){
-  const btnLabel=`▾ 개인 선택 (${filterState.inds.size}명 선택됨)`;
+  const btnLabel=`▾ ${t('ind_select')} (${filterState.inds.size}${t('ind_selected_suffix')})`;
   document.getElementById('ind-toggle-btn').textContent=btnLabel;
   const parts=[];
-  if(filterState.batches.size) parts.push(`기수: ${[...filterState.batches].sort((a,b)=>a-b).map(b=>b+'기').join(', ')}`);
-  if(filterState.cats.size) parts.push(`구분: ${[...filterState.cats].join(', ')}`);
-  if(filterState.inds.size) parts.push(`개인: ${filterState.inds.size}명`);
+  if(filterState.batches.size) parts.push(`${t('filter_batch')}: ${[...filterState.batches].sort((a,b)=>a-b).map(b=>batchLabel(b)).join(', ')}`);
+  if(filterState.cats.size) parts.push(`${t('filter_cat')}: ${[...filterState.cats].join(', ')}`);
+  if(filterState.inds.size) parts.push(`${t('filter_individual')}: ${countLabel(filterState.inds.size)}`);
   document.getElementById('filter-summary').textContent=parts.length
-    ?`✓ 설정됨 — ${parts.join(' / ')}`
+    ?`${t('filter_set_prefix')} ${parts.join(' / ')}`
     :'';
 }
 
