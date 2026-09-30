@@ -666,8 +666,7 @@ const DEFAULT_ENGAGEMENT_DATA={"BIRUNGI FAHIMA":{"monthly":{"2026-01":100,"2026-
 let ENGAGEMENT_DATA=JSON.parse(JSON.stringify(DEFAULT_ENGAGEMENT_DATA));
 // DATA_VERSION: Google Sheets 동기화(GitHub Actions)가 실행될 때마다 이 값이 최신 시각(ISO 문자열)으로 갱신됩니다.
 // 브라우저에 저장된 버전(sdc_data_version)과 다르면, 그 브라우저가 예전에 수동 업로드/수정했던 값이 있더라도
-// PRODUCERS / LABOR_FEE / QC_HISTORY를 최신 DEFAULT_* 값으로 강제 덮어써서 모든 사용자가 항상 같은 최신 데이터를 보게 합니다.
-// (ENGAGEMENT_DATA는 아직 시트 동기화 대상이 아니므로 이 버전 체크 대상에서 제외합니다.)
+// PRODUCERS / LABOR_FEE / QC_HISTORY / ENGAGEMENT_DATA를 최신 DEFAULT_* 값으로 강제 덮어써서 모든 사용자가 항상 같은 최신 데이터를 보게 합니다.
 const DATA_VERSION="2026-09-30T00:00:00.000Z";
 
 // ── STATE ──
@@ -1290,6 +1289,7 @@ function loadData(){
       localStorage.setItem('sdc_data_version',DATA_VERSION);
       localStorage.removeItem('sdc_hmp_data');
       localStorage.removeItem('sdc_qc_history');
+      localStorage.removeItem('sdc_engagement_data');
     }
   }catch(e){}
   try{const s=localStorage.getItem('sdc_hmp_data');if(s){const d=JSON.parse(s);PRODUCERS=d.producers;LABOR_FEE=d.laborFee;}else{PRODUCERS=JSON.parse(JSON.stringify(DEFAULT_PRODUCERS));LABOR_FEE=JSON.parse(JSON.stringify(DEFAULT_LABOR));}}
