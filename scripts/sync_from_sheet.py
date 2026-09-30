@@ -298,16 +298,24 @@ def build_engagement(qc_rows, roster_by_id, roster_by_name, labor, sync_errors):
 
 
 def write_sync_errors(sh, sync_errors):
+    # Writing the Sync_Errors tab is a nice-to-have, not the sync's job. If the service
+    # account only has Viewer access (or anything else goes wrong here), this must never
+    # take down the actual index.html sync - so every failure here is caught and logged.
     try:
-        ws = sh.worksheet("Sync_Errors")
-    except gspread.exceptions.WorksheetNotFound:
-        print("Sync_Errors tab not found - skipping error write-back")
-        return
-    ws.clear()
-    rows = [["Entry_ID", "Sheet", "Raw_HMP_Text", "Reason"]]
-    for e in sync_errors:
-        rows.append(list(e))
-    ws.update(rows, value_input_option="RAW")
+        try:
+            ws = sh.worksheet("Sync_Errors")
+        except gspread.exceptions.WorksheetNotFound:
+            print("Sync_Errors tab not found - skipping error write-back")
+            return
+        ws.clear()
+        rows = [["Entry_ID", "Sheet", "Raw_HMP_Text", "Reason"]]
+        for e in sync_errors:
+            rows.append(list(e))
+        ws.update(rows, value_input_option="RAW")
+    except Exception as e:
+        print(f"::warning::Could not write Sync_Errors tab back to the sheet ({e}). "
+              f"This does not affect the index.html sync above - only the sheet's Sync_Errors tab. "
+              f"Give the service account Editor access on the sheet if you want this list written there automatically.")
 
 
 def replace_js_const(html, const_name, new_value_json):
