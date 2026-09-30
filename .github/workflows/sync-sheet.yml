@@ -27,7 +27,7 @@ jobs:
       - name: Run sync script
         env:
           GOOGLE_SERVICE_ACCOUNT_JSON: ${{ secrets.GOOGLE_SERVICE_ACCOUNT_JSON }}
-          SPREADSHEET_ID: "1S6jG9yiW-bcM5YBjKuKn51qT4au6acz3"
+          SPREADSHEET_ID: "1POUB1sHsExU2iv7jorL35YojajhODETar032eYh0z8k"
         run: python scripts/sync_from_sheet.py
 
       - name: Commit and push if changed
