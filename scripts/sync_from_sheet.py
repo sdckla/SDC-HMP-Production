@@ -252,6 +252,12 @@ def build_engagement(qc_rows, roster_by_id, roster_by_name, labor, sync_errors):
     """Mirrors the app's own deriveEngagementFromQcMonth(): for each person/month,
     engagement value = sum over that month's QC rows of (Submitted_Qty * Labor_Cost[product])."""
     monthly = defaultdict(lambda: defaultdict(float))  # name -> periodKey -> value
+    # Case-insensitive fallback lookup: a product name that only differs from Labor_Cost
+    # by letter case (e.g. QC_Records "Book bag v2" vs Labor_Cost "Book bag V2") should
+    # still match, instead of silently dropping that person's engagement for the month.
+    labor_ci = {}
+    for k, v in labor.items():
+        labor_ci.setdefault(k.lower(), v)
 
     for r in qc_rows:
         try:
@@ -278,6 +284,12 @@ def build_engagement(qc_rows, roster_by_id, roster_by_name, labor, sync_errors):
             continue  # already logged as a Sync_Errors row by build_qc_history()
 
         fee = labor.get(product)
+        if fee is None:
+            fee = labor_ci.get(product.lower())
+            if fee is not None:
+                sync_errors.append(("", "QC_Records", product,
+                                     "Matched Labor_Cost only by ignoring letter case — "
+                                     "consider making the spelling identical"))
         if fee is None:
             sync_errors.append(("", "QC_Records", product,
                                  "Product not found in Labor_Cost (excluded from engagement value)"))
