@@ -93,7 +93,9 @@ MONTH_ABBR = ["Jan", "Feb", "Mar", "Apr", "May", "Jun",
 
 
 def build_producers_and_roster(roster_rows, cap_rows):
-    """Returns (PRODUCERS list, roster_by_id dict, roster_by_name dict) - only Active people."""
+    """Returns (active PRODUCERS list, inactive list, roster_by_id dict, roster_by_name dict).
+    Inactive people are kept in a separate list: they stay visible in the HMP Status tab and
+    their historical QC / engagement data is preserved, but they are excluded from allocation."""
     roster_by_id = {}
     roster_by_name = {}
     order = []
@@ -113,8 +115,7 @@ def build_producers_and_roster(roster_rows, cap_rows):
         }
         roster_by_id[hid] = entry
         roster_by_name[norm_name_key(name)] = entry
-        if active:
-            order.append(hid)
+        order.append(hid)
 
     caps_by_id = defaultdict(list)
     for r in cap_rows:
@@ -126,19 +127,21 @@ def build_producers_and_roster(roster_rows, cap_rows):
             caps_by_id[hid].append(pname)
 
     producers = []
+    inactive = []
     for hid in order:
         entry = roster_by_id[hid]
         try:
             batch = int(entry["batch"])
         except (TypeError, ValueError):
             batch = entry["batch"] or ""
-        producers.append({
+        item = {
             "category": entry["category"],
             "batch": batch,
             "name": entry["name"],
             "capable": caps_by_id.get(hid, []),
-        })
-    return producers, roster_by_id, roster_by_name
+        }
+        (producers if entry["active"] else inactive).append(item)
+    return producers, inactive, roster_by_id, roster_by_name
 
 
 def build_labor(labor_rows, run_date):
@@ -197,16 +200,14 @@ def build_qc_history(qc_rows, roster_by_id, roster_by_name, run_date):
         batch = r.get("Batch")
 
         person = None
-        if hid and hid in roster_by_id and roster_by_id[hid]["active"]:
+        if hid and hid in roster_by_id:
             person = roster_by_id[hid]
         elif raw_name:
             person = roster_by_name.get(norm_name_key(raw_name))
-            if person and not person["active"]:
-                person = None
 
         if not person:
             sync_errors.append((entry_id, "QC_Records", raw_name or hid,
-                                 "No matching active person found in Roster (check ID/name spelling)"))
+                                 "No matching person found in Roster (check ID/name spelling)"))
             continue
 
         key = (year, month)
@@ -274,12 +275,10 @@ def build_engagement(qc_rows, roster_by_id, roster_by_name, labor, sync_errors):
         hid = norm(r.get("HMP_ID"))
 
         person = None
-        if hid and hid in roster_by_id and roster_by_id[hid]["active"]:
+        if hid and hid in roster_by_id:
             person = roster_by_id[hid]
         elif raw_name:
             person = roster_by_name.get(norm_name_key(raw_name))
-            if person and not person["active"]:
-                person = None
         if not person:
             continue  # already logged as a Sync_Errors row by build_qc_history()
 
@@ -352,7 +351,7 @@ def main():
 
     run_date = datetime.now(timezone.utc)
 
-    producers, roster_by_id, roster_by_name = build_producers_and_roster(roster_rows, cap_rows)
+    producers, inactive, roster_by_id, roster_by_name = build_producers_and_roster(roster_rows, cap_rows)
     labor = build_labor(labor_rows, run_date)
     qc_history, sync_errors = build_qc_history(qc_rows, roster_by_id, roster_by_name, run_date)
     engagement = build_engagement(qc_rows, roster_by_id, roster_by_name, labor, sync_errors)
@@ -370,6 +369,12 @@ def main():
     html = replace_js_const(html, "DEFAULT_QC_HISTORY", json.dumps(qc_history, ensure_ascii=False))
     html = replace_js_const(html, "DEFAULT_ENGAGEMENT_DATA", json.dumps(engagement, ensure_ascii=False))
 
+    if re.search(r"const DEFAULT_INACTIVE\s*=", html):
+        html = replace_js_const(html, "DEFAULT_INACTIVE", json.dumps(inactive, ensure_ascii=False))
+    else:  # first run against an older index.html: insert the constant after DEFAULT_ENGAGEMENT_DATA
+        marker = re.search(r"const DEFAULT_ENGAGEMENT_DATA\s*=\s*.*?;\n", html, re.DOTALL)
+        html = html[:marker.end()] + "const DEFAULT_INACTIVE=" + json.dumps(inactive, ensure_ascii=False) + ";\n" + html[marker.end():]
+
     version_stamp = run_date.isoformat().replace("+00:00", "Z")
     version_pattern = re.compile(r'const DATA_VERSION\s*=\s*"[^"]*";')
     html, count = version_pattern.subn(f'const DATA_VERSION="{version_stamp}";', html, count=1)
@@ -380,14 +385,14 @@ def main():
         f.write(html)
 
     if sync_errors:
-        print(f"::warning::{len(sync_errors)} QC_Records row(s) could not be matched to an active roster entry:")
+        print(f"::warning::{len(sync_errors)} QC_Records row(s) could not be matched to a roster entry:")
         for e in sync_errors:
             print(f"  - {e}")
         write_sync_errors(sh, sync_errors)
     else:
         write_sync_errors(sh, [])
 
-    print(f"Synced {len(producers)} active producers, {len(labor)} labor-cost entries, "
+    print(f"Synced {len(producers)} active + {len(inactive)} inactive producers, {len(labor)} labor-cost entries, "
           f"{len(qc_history)} QC month(s), engagement for {len(engagement)} people. "
           f"DATA_VERSION={version_stamp}")
 
